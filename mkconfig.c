@@ -141,13 +141,13 @@ void readconfig(FILE *f, struct CONFIG *cfg, char *enckey)
 	printf("Decrypting inc-config.h data\n");
 
 	if (configptr < sizeof(*cfg)) {
-	    printf("Config in inc-config (%d) has smaller length than config block (%d).\n", configptr, sizeof(*cfg));
+	    printf("Config in inc-config (%d) has smaller length than config block (%zd).\n", configptr, sizeof(*cfg));
 	}
 	else {
 	    struct CONFIG *newcfg;
 
 	    xtea_cbc_decipher((unsigned char*)configbuff, sizeof(configbuff),
-			      (unsigned long*)enckey, tea_iv);
+			      (uint32_t*)enckey, tea_iv);
 
 	    newcfg = (struct CONFIG*)configbuff;
 
@@ -176,7 +176,7 @@ void readconfig(FILE *f, struct CONFIG *cfg, char *enckey)
 		string_to_teakey(inpass, teakey);
 
 		xtea_cbc_decipher((unsigned char*)configbuff, sizeof(configbuff),
-				  (unsigned long*)teakey, tea_iv);
+				  (uint32_t*)teakey, tea_iv);
 
 		newcfg = (struct CONFIG*)configbuff;
 
@@ -261,11 +261,11 @@ int writeconfig(FILE *f, struct CONFIG *cfg, char *enckeystring)
 	/* encrypt config block */
 	encbuff = malloc(enclen);
 
-	memset(encbuff,0,sizeof(encbuff));
+	memset(encbuff,0, enclen);
 
 	memcpy(encbuff, cfg, sizeof(*cfg));
 
-	xtea_cbc_encipher(encbuff, enclen, (unsigned long*)enckey, tea_iv);
+	xtea_cbc_encipher(encbuff, enclen, (uint32_t*)enckey, tea_iv);
 
 	/* write into config header */
 	writehexstruct(f, "configdataencrypt", encbuff, enclen);  
@@ -470,7 +470,7 @@ int main()
 
 	printf("Generating random encryption key (you dont need to save this)...\n");
 
-	memset(uenckey, 0, sizeof(uenckey));
+	memset(uenckey, 0, ENCKEYLEN);
 	for(n = 0; n < 64; n++) {
 	    uenckey[n % 16] ^= rand() % 256;
 	}

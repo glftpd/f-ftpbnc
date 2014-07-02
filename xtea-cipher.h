@@ -5,52 +5,52 @@
 #ifndef _XTEA_CIPHER_H
 #define _XTEA_CIPHER_H
 
-void xtea_encipher(const unsigned long *const v, unsigned long *const w,
-		   const unsigned long *const k)
+void xtea_encipher(const uint32_t *const v, uint32_t *const w,
+		   const uint32_t *const k)
 {
-    register unsigned long y=v[0], z=v[1], sum=0,
+    register uint32_t y=v[0], z=v[1], sum=0,
 	delta=0x9E3779B9, n=32;
 
     while(n-- > 0)
     {
-	y += (z << 4 ^ z >> 5) + (z ^ sum) + k[sum&3];
+	y += ((z << 4) ^ (z >> 5)) + (z ^ sum) + k[sum&3];
 	sum += delta;
-	z += (y << 4 ^ y >> 5) + (y ^ sum) + k[sum>>11 & 3];
+	z += ((y << 4) ^ (y >> 5)) + (y ^ sum) + k[sum>>11 & 3];
     }
 
     w[0]=y; w[1]=z;
 }
 
-void xtea_decipher(const unsigned long *const v, unsigned long *const w,
-		   const unsigned long *const k)
+void xtea_decipher(const uint32_t *const v, uint32_t *const w,
+		   const uint32_t *const k)
 {
-    register unsigned long y=v[0], z=v[1], sum=0xC6EF3720,
+    register uint32_t y=v[0], z=v[1], sum=0xC6EF3720,
 	delta=0x9E3779B9, n=32;
 
     /* sum = delta<<5, in general sum = delta * n */
 
     while(n-- > 0)
     {
-	z -= (y << 4 ^ y >> 5) + (y ^ sum) + k[sum>>11 & 3];
+	z -= ((y << 4) ^ (y >> 5)) + (y ^ sum) + k[sum>>11 & 3];
 	sum -= delta;
-	y -= (z << 4 ^ z >> 5) + (z ^ sum) + k[sum&3];
+	y -= ((z << 4) ^ (z >> 5)) + (z ^ sum) + k[sum&3];
     }
    
     w[0]=y; w[1]=z;
 }
 
 inline void xtea_cbc_copy(unsigned char a[8], const unsigned char b[8]) {
-    ((unsigned long*)a)[0] = ((unsigned long*)b)[0];
-    ((unsigned long*)a)[1] = ((unsigned long*)b)[1];
+    ((uint32_t*)a)[0] = ((uint32_t*)b)[0];
+    ((uint32_t*)a)[1] = ((uint32_t*)b)[1];
 }
 
 inline void xtea_cbc_xor(unsigned char a[8], const unsigned char b[8]) {
-    ((unsigned long*)a)[0] ^= ((unsigned long*)b)[0];
-    ((unsigned long*)a)[1] ^= ((unsigned long*)b)[1];
+    ((uint32_t*)a)[0] ^= ((uint32_t*)b)[0];
+    ((uint32_t*)a)[1] ^= ((uint32_t*)b)[1];
 }
 
 /* please check that vl has 8 as divisor */
-void xtea_cbc_encipher(unsigned char *v, unsigned int vl, const unsigned long *const k,
+void xtea_cbc_encipher(unsigned char *v, unsigned int vl, const uint32_t *const k,
 		       const unsigned char *const incbciv)
 {
     unsigned vc = 0;
@@ -60,12 +60,12 @@ void xtea_cbc_encipher(unsigned char *v, unsigned int vl, const unsigned long *c
 
     for(vc = 0; vc < vl; vc+=8) {
 	xtea_cbc_xor(v+vc, cbciv);
-	xtea_encipher((unsigned long*)(v+vc), (unsigned long*)(v+vc), k);
+	xtea_encipher((uint32_t*)(v+vc), (uint32_t*)(v+vc), k);
 	xtea_cbc_copy(cbciv, v+vc);
     }
 }
 
-void xtea_cbc_decipher(unsigned char *v, unsigned int vl, const unsigned long *const k,
+void xtea_cbc_decipher(unsigned char *v, unsigned int vl, const uint32_t *const k,
 		       const unsigned char *const incbciv)
 {
     unsigned vc = 0;
@@ -75,7 +75,7 @@ void xtea_cbc_decipher(unsigned char *v, unsigned int vl, const unsigned long *c
 
     for(vc = 0; vc < vl; vc+=8) {
 	xtea_cbc_copy(cbcivnext, v+vc);
-	xtea_decipher((unsigned long*)(v+vc), (unsigned long*)(v+vc), k);
+	xtea_decipher((uint32_t*)(v+vc), (uint32_t*)(v+vc), k);
 	xtea_cbc_xor(v+vc, cbciv);
 	xtea_cbc_copy(cbciv, cbcivnext);
     }

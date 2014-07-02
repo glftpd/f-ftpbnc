@@ -23,3 +23,6 @@
 *.hex
 
 mkconfig
+f-ftpbnc
+inc-config.h
+

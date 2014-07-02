@@ -51,7 +51,7 @@ int config_load()
 #if defined(SCRAMBLE_CONFIG)
 
     xtea_cbc_decipher(configdataencrypt, sizeof(configdataencrypt),
-		      (unsigned long*)configkey, tea_iv);
+		      (uint32_t*)configkey, tea_iv);
 
     config = (struct CONFIG*)configdataencrypt;
 
