@@ -13,13 +13,13 @@ __/    \_     |     /     /     /    \_/     |     __/     /    \      /    |_
 +-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-+
 |                                                                             |
 | [D A T E]                                                                   |
-|  2005-10-30                                                                 |
+|  2008-01-30                                                                 |
 |                                                                             |
 | [N A M E]                                                                   |
 |  f-ftpbnc                                                                   |
 |                                                                             |
 | [V E R S I O N]                                                             |
-|  1.5                                                                        |
+|  1.6                                                                        |
 |                                                                             |
 | [F O R]                                                                     |
 |  glftpd, other ftps, women, unix, pc, power, room, world, freedom           |
@@ -56,10 +56,11 @@ __/    \_     |     /     /     /    \_/     |     __/     /    \      /    |_
 |  Support forum: www.high-society.at/forum/                                  |
 |                                                                             |
 | [H I S T O R Y]                                                             |
+| v1.6 : fixed critical bug in buffering of client commands before IDNT       |
 | v1.5 : timeouts added for filtered ident ports on some isp                  |
 |        ident lookup can now be disabled                                     |
 | v1.1 : new setting of proctitle and fixed FreeBSD bug                       |
 | v1.0 : first public release                                                 |
 +-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-+
-|			       High Society 2005                              |
+|                              High Society 2008                              |
 +-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-+

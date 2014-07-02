@@ -1,5 +1,5 @@
-# f-ftpbnc v1.5 Makefile
-# f-ftpbnc--release--1.5 2005-10-30 19:14
+# f-ftpbnc v1.6 Makefile
+# $Rev: 421 $ $Date: 2008-01-30 22:56:40 +0100 (Wed, 30 Jan 2008) $
 
 DFLAGS=-W -Wall -g
 CFLAGS=$(DFLAGS)

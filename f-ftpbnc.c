@@ -1,5 +1,5 @@
-/* f-ftpbnc v1.5 */
-/* f-ftpbnc--release--1.5 2005-10-30 19:14 */
+/* f-ftpbnc v1.6 */
+/* $Rev: 421 $ $Date: 2008-01-30 22:56:40 +0100 (Wed, 30 Jan 2008) $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -626,6 +626,7 @@ struct SOCK
     long		timeout;
 
     struct MEMBUFF	sendbuffer;
+    struct MEMBUFF	preidentbuffer;
 
     char		*ident;
 
@@ -674,6 +675,7 @@ void socket_close(struct SOCK *ss)
     }
 
     membuff_free(&ss->sendbuffer);
+    membuff_free(&ss->preidentbuffer);
 
     if (ss->ident) {
 	free(ss->ident);
@@ -700,16 +702,16 @@ int sockethandler_membuffsend(struct SOCK* ss)
     if (ss->status == STATUS_CLIENTIDENT) return 0;
     if (ss->status == STATUS_SERVERIDENT) return 0;
 
-    while( ( wb = membuff_available(&ss->sendbuffer) ) > 0 ) {
-
-	aprintf("Flushing %d bytes from membuffer", wb);
+    while( ( wb = membuff_available(&ss->sendbuffer) ) > 0 )
+    {
+	aprintf("Flushing %d bytes from sendbuffer", wb);
 	w = write(ss->fd, membuff_top(&ss->sendbuffer), wb);
 	  
 	if (w < 0) {
 	    if (errno == EAGAIN) {
 		return 0;
 	    }
-	    aprintferrno("Received error during membuff flush on fd %d.", ss->fd);
+	    aprintferrno("Received error during sendbuffer flush on fd %d.", ss->fd);
 	    socket_close(ss);
 	    return 0;
 	}
@@ -788,6 +790,24 @@ void socket_flushident(struct SOCK *ss)
 	clt->ident = NULL;
     }
 
+    // flush pre-ident lines of client
+    {
+	int wb;
+	while( ( wb = membuff_available(&ss->preidentbuffer) ) > 0 )
+	{
+	    aprintf("Flushing %d bytes from pre-ident buffer", wb);
+	    int w = socket_write(ss, membuff_top(&ss->preidentbuffer), wb);
+	  
+	    if (w < 0) {
+		aprintferrno("Received error during pre-ident buffer flush on fd %d.", ss->fd);
+		socket_close(ss);
+		return;
+	    }
+
+	    membuff_gobble(&ss->preidentbuffer, w);
+	}
+    }
+
     sockethandler_membuffsend(ss);
 
     clt->status = STATUS_CLIENTFORWARD;
@@ -828,8 +848,8 @@ int sockethandler_relaydata(struct SOCK *ss)
 		return 0;
 	    }
 
-	    aprintf("Buffering %d bytes of data from client socket %d.", inbytes, ss->fd);
-	    membuff_write(&fs->sendbuffer, inbuffer, inbytes);
+	    aprintf("Buffering %d bytes of pre-ident data from client socket %d.", inbytes, ss->fd);
+	    membuff_write(&fs->preidentbuffer, inbuffer, inbytes);
 	}
 	else if (fs->status == STATUS_SERVERCONNECTED) {
 	    /* write data onto forwarded socket */

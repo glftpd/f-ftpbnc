@@ -1,4 +1,4 @@
-README for f-ftpbnc-v1.5
+README for f-ftpbnc-v1.6
 
 This is a fully functional ftp port "bouncer" for glftpd and compatible
 ftp-daemons. It is written from scratch and uses a special state-machine driven
@@ -92,9 +92,12 @@ b) Do not include the encryption key in the binary.
 Have Fun
 F
 
-f-ftpbnc--release--1.5 2005-10-30 19:14
+$Rev: 421 $ $Date: 2008-01-30 22:56:40 +0100 (Wed, 30 Jan 2008) $
 
 Changes:
+v1.6
+- fixed critical bug in buffering of client commands before IDNT
+
 v1.5
 - added support for disabling ident lookup
 - now uses non-blocking write

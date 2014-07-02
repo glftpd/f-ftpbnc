@@ -1,6 +1,6 @@
-/* f-ftpbnc.h v1.5 Headerfile
+/* f-ftpbnc.h v1.6 Headerfile
    containing structures needed by mkconfig */
-/* f-ftpbnc--release--1.5 2005-10-30 19:14 */
+/* $Rev: 421 $ $Date: 2008-01-30 22:56:40 +0100 (Wed, 30 Jan 2008) $ */
 
 struct CONFIG {
 
