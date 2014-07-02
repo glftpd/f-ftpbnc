@@ -1,5 +1,5 @@
-/* mkconfig for f-ftpbnc v1.0 */
-/* $Rev: 1232 $ $Date: 2004-11-09 14:30:45 +0100 (Tue, 09 Nov 2004) $ */
+/* mkconfig for f-ftpbnc v1.1 */
+/* $Rev: 1558 $ $Date: 2005-07-04 20:36:13 +0200 (Mon, 04 Jul 2005) $ */
 
 #include <string.h>
 #include <stdio.h>
@@ -268,6 +268,10 @@ int writeconfig(FILE *f, struct CONFIG *cfg, char *enckeystring)
 	  /* write into config header */
 	  writehexstruct(f, "configdataencrypt", encbuff, enclen);  
 	  fprintf(f,"\n");
+
+	  if (cfg->proctitlechange) {
+	       fprintf(f,"#define CHANGE_PROCTITLE\n\n");
+	  }
      }
 
      return 1;
@@ -389,21 +393,50 @@ int main()
      while(sscanf(buff, "%d:%d", &cfg.hammercount, &cfg.hammertime) != 2);
      printf("\n");
 
-     printf("9) Configuration Encryption Type\n");
-     printf("   f-ftpbnc will always compile its configuration into the binary. This\n");
-     printf("   means it does not need a bnc.conf lying around. The configuration block\n");
-     printf("   inside the binary program image is encrypted with xTEA.\n");
-     printf("   There are two methods available:\n");
-     printf("   a) Include the password needed for decryption inside the binary. This\n");
-     printf("      enables the bnc to start by itself from a crontab. But the configuration\n");
-     printf("      is not really safe, as it is easy to trace the decryption instructions\n");
-     printf("      and thereby read the config.\n");
-     printf("      I repeat: this is not real encryption, just a manner of hiding\n");
-     printf("      the config.\n");
-     printf("   b) The encryption key will not be stored inside the binary, the bnc \n");
-     printf("      will demand it from the console when you start it. Be warned that it\n");
-     printf("      therefore cannot be started by cron. But the configuration is\n");
-     printf("      really safe this way.\n\n");
+     printf("9) Status in ps\n");
+     printf("   The bnc can be configed to change its proc title in a ps listing. This \n");
+     printf("   can be used to a static text of e.g. another executable's name. Or it can\n");
+     printf("   be used to display the current number of connections the bnc is serving.\n\n");
+
+     do {
+	  sprintf(buff, "%c", cfg.proctitlechange ? 'y' : 'n');
+	  readoption("Change Proctitle", buff, sizeof(buff));
+     }
+     while(strcmp(buff,"n") != 0 && strcmp(buff,"y") != 0);
+
+     if (*buff == 'y') {
+	  printf("9a) Proctitle text\n");
+	  printf("    The text for the proc title. Use may use %%d to insert the current \n");
+	  printf("    number of clients in the text. Use only one %%d and no other replacements.\n");
+	  printf("    Otherwise the bnc will crash!\n\n");
+
+	  if (!cfg.proctitlechange) strcpy(cfg.proctitletext,"f-ftpbnc: [ %d users ]");
+
+	  readoption("Proctitle text", cfg.proctitletext, sizeof(cfg.proctitletext));
+
+	  cfg.proctitlechange = 1;
+     }
+     else {
+	  cfg.proctitlechange = 0;
+     }
+
+     printf("\n");
+
+     printf("10) Configuration Encryption Type\n");
+     printf("    f-ftpbnc will always compile its configuration into the binary. This\n");
+     printf("    means it does not need a bnc.conf lying around. The configuration block\n");
+     printf("    inside the binary program image is encrypted with xTEA.\n");
+     printf("    There are two methods available:\n");
+     printf("    a) Include the password needed for decryption inside the binary. This\n");
+     printf("       enables the bnc to start by itself from a crontab. But the configuration\n");
+     printf("       is not really safe, as it is easy to trace the decryption instructions\n");
+     printf("       and thereby read the config.\n");
+     printf("       I repeat: this is not real encryption, just a manner of hiding\n");
+     printf("       the config.\n");
+     printf("    b) The encryption key will not be stored inside the binary, the bnc \n");
+     printf("       will demand it from the console when you start it. Be warned that it\n");
+     printf("       therefore cannot be started by cron. But the configuration is\n");
+     printf("       really safe this way.\n\n");
      
      do {
 	  sprintf(buff, "%c", cfg.enctype == 2 ? 'b' : 'a');  

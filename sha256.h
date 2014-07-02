@@ -1,5 +1,5 @@
 /* Header file for sha256.c */
-/* $Rev: 1119 $ $Date: 2004-07-07 23:00:35 +0200 (Wed, 07 Jul 2004) $ */
+/* $Rev: 1558 $ $Date: 2005-07-04 20:36:13 +0200 (Mon, 04 Jul 2005) $ */
 
 #ifndef _SHA256_H
 #define _SHA256_H

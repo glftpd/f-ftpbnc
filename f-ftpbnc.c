@@ -1,5 +1,5 @@
-/* f-ftpbnc v1.0 */
-/* $Rev: 1232 $ $Date: 2004-11-09 14:30:45 +0100 (Tue, 09 Nov 2004) $ */
+/* f-ftpbnc v1.1 */
+/* $Rev: 1558 $ $Date: 2005-07-04 20:36:13 +0200 (Mon, 04 Jul 2005) $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +20,8 @@
 
 #include <signal.h>
 
+extern char **environ;
+
 #include "sha256.h"
 #include "xtea-cipher.h"
 
@@ -28,7 +30,7 @@
 #define IDENTD_PORT 		113
 #define TIMER_MULTIPLY		1000
 
-#define TIMEOUT_IDENT		10 * TIMER_MULTIPLY
+#define TIMEOUT_IDENT		5 * TIMER_MULTIPLY
 #define TIMEOUT_CONNECTING	20 * TIMER_MULTIPLY
 #define TIMEOUT_CONNECTED	3*3600 * TIMER_MULTIPLY
 
@@ -160,6 +162,30 @@ void signal_PIPE(int signum) {
 
      /* do nothing (esp not terminate) */
 }
+
+void signal_IO(int signum) {
+
+     /* reset handler for new signals */
+     signal(signum, signal_IO);
+
+     aprintf("Received SIGIO");
+
+     /* do nothing (esp not terminate) */
+}
+
+void signal_SEGV(int signum) {
+#ifdef __linux__
+     struct sigcontext_struct *sc;
+
+     sc = (struct sigcontext_struct *)(&signum + 1);
+
+     aprintf("Received SIGSEGV at address %lx", sc->eip);
+#else
+     signum++;
+     aprintf("Received SIGSEGV");
+#endif
+     exit(1);
+}                                         
 
 /*** Network Functions ***/
 
@@ -348,7 +374,7 @@ int hammer_check(struct sockaddr_in client)
      freen = -1;
 
      for(n = 0; n < hammerlistlen; n++) {
-	  if (hammerlist[n].ltime >= (tnow - config->hammertime) && 
+	  if (hammerlist[n].ltime >= (tnow - config->hammertime) &&
 	      client.sin_addr.s_addr == hammerlist[n].lconn)
 	  {
 	       clientcount++;
@@ -374,6 +400,120 @@ int hammer_check(struct sockaddr_in client)
      return 1;
 }
 
+/*** Proctitle stats setting (largly borrowed from proftpd) ***/
+
+/* variables filled in as stats */
+int clients = 0;
+int socketsused = 0;
+
+/* set from mkconfig */
+#ifdef CHANGE_PROCTITLE
+
+char **Argv = NULL;
+char *LastArgv = NULL;
+
+#if __FreeBSD__ >= 4 || defined(__OpenBSD__)
+#define HAVE_SETPROCTITLE
+#endif
+
+#ifdef __linux__
+extern char *__progname, *__progname_full;
+#endif
+
+void proctitle_init(int argc, char *argv[], char *envp[]) {
+     int i, envpsize;
+     char **p;
+
+     /* Move the environment so setproctitle can use the space. */
+     for (i = envpsize = 0; envp[i] != NULL; i++)
+	  envpsize += strlen(envp[i]) + 1;
+
+     if ((p = (char **)malloc((i + 1) * sizeof(char *))) != NULL) {
+	  environ = p;
+
+	  for (i = 0; envp[i] != NULL; i++)
+	       if ((environ[i] = malloc(strlen(envp[i]) + 1)) != NULL)
+		    strcpy(environ[i], envp[i]);
+
+	  environ[i] = NULL;
+     }
+
+     Argv = argv;
+
+     for (i = 0; i < argc; i++)
+	  if (!i || (LastArgv + 1 == argv[i]))
+	       LastArgv = argv[i] + strlen(argv[i]);
+
+     for (i = 0; envp[i] != NULL; i++)
+	  if ((LastArgv + 1) == envp[i])
+	       LastArgv = envp[i] + strlen(envp[i]);
+
+#ifdef __linux__
+     /* Set the __progname and __progname_full variables so glibc and company
+	don't go nuts. */
+     __progname = strdup("f-ftpbnc");
+     __progname_full = strdup(argv[0]);
+#endif /* HAVE___PROGNAME */
+}
+
+void proctitle_set(const char *fmt, ...) {
+     va_list msg;
+     static char statbuf[BUFSIZ];
+
+#ifndef HAVE_SETPROCTITLE
+     char *p;
+     int i, maxlen = (LastArgv - Argv[0]) - 2;
+#endif /* HAVE_SETPROCTITLE */
+
+     va_start(msg,fmt);
+
+     memset(statbuf, 0, sizeof(statbuf));
+
+#ifdef HAVE_SETPROCTITLE
+     /* FreeBSD's setproctitle() automatically prepends the process name. */
+     vsnprintf(statbuf, sizeof(statbuf), fmt, msg);
+     setproctitle("%s", statbuf);
+
+#else /* HAVE_SETPROCTITLE */
+
+     vsnprintf(statbuf, sizeof(statbuf), fmt, msg);
+
+#endif /* HAVE_SETPROCTITLE */
+
+     va_end(msg);
+
+#ifdef HAVE_SETPROCTITLE
+     return;
+#else
+     i = strlen(statbuf);
+
+     /* We can overwrite individual argv[] arguments.  Semi-nice. */
+     snprintf(Argv[0], maxlen, "%s", statbuf);
+     p = &Argv[0][i];
+
+     while(p < LastArgv) *p++ = '\0';
+     Argv[1] = NULL;
+
+#endif /* HAVE_SETPROCTITLE */
+}
+
+void proctitle_update() {
+     proctitle_set(config->proctitletext, clients, socketsused);
+}
+
+#else /* CHANGE_PROCTITLE (config variable) */
+
+void proctitle_init(int argc, char *argv[], char *envp[]) {
+     argc++;
+     argv++;
+     envp++;
+}
+
+void proctitle_update() {
+}
+
+#endif /* CHANGE_PROCTITLE (config variable) */
+
 /*** Socket Status array ***/
 
 struct SOCK;
@@ -390,6 +530,7 @@ struct SOCK
      int		used;
 
      int		status;
+     int	    	client;
 
      int		sockfd;
      socket_proc	readhandler;
@@ -412,7 +553,6 @@ struct SOCK
 
 int socketsnum = 0;
 struct SOCK **sockets;
-int socketsused = 0;
 
 struct SOCK *socklist_findunused() {
      int n, oldsocketsnum;
@@ -454,6 +594,11 @@ void socket_close(struct SOCK *ss) {
 
      ss->used = 0;
      socketsused--;
+     if (ss->client) {
+	  clients--;
+	  ss->client = 0;
+	  proctitle_update();
+     }     
 }
 
 /* flush ident into and line buffer to server when its connected */
@@ -636,7 +781,7 @@ void sanitize_ident(char *i) {
 	  if (*i == '[') *i = '.';
 	  if (*i == ']') *i = '.';
 	  if (*i == '{') *i = '.';
-	  if (*i == '}') *i = '.';        
+	  if (*i == '}') *i = '.';	  
 	  i++;
      }
 }
@@ -753,7 +898,7 @@ int main_readidentd(struct SOCK *ss) {
 
 int main_identdconnect(struct SOCK *ss) {
      int error, r;
-     unsigned int len;
+     unsigned int len = sizeof(error);
      static char buff1[256];
 
      struct SOCK *cltss = ss->forwardsock;
@@ -930,7 +1075,7 @@ int main_readserver(struct SOCK *ss) {
 
 int main_serverconnect(struct SOCK *ss) {
      int error;
-     unsigned int len;
+     unsigned int len = sizeof(error);
 
      struct SOCK *fs = ss->forwardsock;
 
@@ -982,7 +1127,7 @@ int main_serverconnect(struct SOCK *ss) {
 }
 
 int main_clienthammerclose(struct SOCK *ss) {
-     const char *hammertext = "421 Hammer Protection: Connection quota exceeded\n";
+     const char *hammertext = "421 Hammer Protection: Connection quota exceeded!\n";
 
      write(ss->sockfd, hammertext, strlen(hammertext));
      
@@ -1008,6 +1153,8 @@ int main_acceptclient(struct SOCK *ss) {
      newcs = socklist_findunused();
      newcs->used = 1;
      socketsused++;
+     clients++;
+     newcs->client = 1;
      newcs->sockfd = newsocket;
      newcs->readhandler = main_relaydata;
      newcs->status = STATUS_CLIENTFORWARD;
@@ -1021,6 +1168,8 @@ int main_acceptclient(struct SOCK *ss) {
 	  newcs->writehandler = main_clienthammerclose;
 	  return 0;
      }
+
+     proctitle_update();
 
      /* open nonblocking connection to main host */
      {
@@ -1362,12 +1511,16 @@ int main (int argc, char *argv[])
 
      if (!config_load()) return 1;
 
+     proctitle_init(argc,argv,environ);
+
      printf("%s starting: config %s\n", argv[0], config->configname);
 
      signal(SIGINT, signal_INT);
      signal(SIGUSR1, signal_USR1);
      signal(SIGUSR2, signal_USR2);
      signal(SIGPIPE, signal_PIPE);
+     signal(SIGIO, signal_IO);
+     signal(SIGSEGV, signal_SEGV);
 
      {
 	  int listensocket;

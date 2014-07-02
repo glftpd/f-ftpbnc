@@ -1,6 +1,6 @@
 /* XTEA - New Tiny Encryption Algorithm - Public Domain C Source */
 /* based on http://www.simonshepherd.supanet.com/source.htm */
-/* $Rev: 1119 $ $Date: 2004-07-07 23:00:35 +0200 (Wed, 07 Jul 2004) $ */
+/* $Rev: 1558 $ $Date: 2005-07-04 20:36:13 +0200 (Mon, 04 Jul 2005) $ */
 
 #ifndef _XTEA_CIPHER_H
 #define _XTEA_CIPHER_H

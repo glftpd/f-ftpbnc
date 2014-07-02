@@ -1,4 +1,4 @@
-README for f-ftpbnc-v1.0
+README for f-ftpbnc-v1.1
 
 This is a fully functional ftp port "bouncer" for glftpd and compatible
 ftp-daemons. It is written from scratch and uses a special state-machine driven
@@ -23,7 +23,11 @@ structure. The current version has following key features:
    Either the decryption key is stored in the binary, or it has to be supplied
    by the user when starting the bnc.
 
- o compiles fine under Linux, FreeBSD, OpenBSD. Others may need a little porting.
+ o Optionally changes the proc line shown in ps to indicate the current number
+   of bounced connections.
+   
+ o compiles fine under Linux, FreeBSD, OpenBSD. Others may need a little
+   porting.
 
 --- Installation ---
 
@@ -81,4 +85,4 @@ b) Do not include the encryption key in the binary.
 Have Fun
 F
 
-$Date: 2004-11-09 14:30:45 +0100 (Tue, 09 Nov 2004) $ $Rev: 1232 $
+$Date: 2005-07-04 20:36:13 +0200 (Mon, 04 Jul 2005) $ $Rev: 1558 $

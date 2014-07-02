@@ -1,6 +1,6 @@
-/* f-ftpbnc.h v1.0 Headerfile
+/* f-ftpbnc.h v1.1 Headerfile
    containing structures needed by mkconfig */
-/* $Rev: 1232 $ $Date: 2004-11-09 14:30:45 +0100 (Tue, 09 Nov 2004) $ */
+/* $Rev: 1558 $ $Date: 2005-07-04 20:36:13 +0200 (Mon, 04 Jul 2005) $ */
 
 struct CONFIG {
 
@@ -18,6 +18,9 @@ struct CONFIG {
 
      int	hammercount;
      int	hammertime;
+
+     int	proctitlechange;
+     char	proctitletext[64];
 
      int	enctype;
 };

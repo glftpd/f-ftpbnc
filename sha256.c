@@ -18,7 +18,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/* $Rev: 1119 $ $Date: 2004-07-07 23:00:35 +0200 (Wed, 07 Jul 2004) $ */
+/* $Rev: 1558 $ $Date: 2005-07-04 20:36:13 +0200 (Mon, 04 Jul 2005) $ */
 
 #include <string.h>
 
