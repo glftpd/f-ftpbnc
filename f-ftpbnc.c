@@ -184,11 +184,16 @@ void signal_IO(int signum)
 void signal_SEGV(int signum)
 {
 #ifdef __linux__
-    struct sigcontext_struct *sc;
+    struct sigcontext *sc;
 
-    sc = (struct sigcontext_struct *)(&signum + 1);
+    sc = (struct sigcontext *)(&signum + 1);
 
+#if __WORDSIZE == 64
+    aprintf("Received SIGSEGV at address %lx", sc->rip);
+#else
     aprintf("Received SIGSEGV at address %lx", sc->eip);
+#endif
+
 #else
     signum++;
     aprintf("Received SIGSEGV");
