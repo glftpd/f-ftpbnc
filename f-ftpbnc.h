@@ -1,6 +1,6 @@
-/* f-ftpbnc.h v1.1 Headerfile
+/* f-ftpbnc.h v1.5 Headerfile
    containing structures needed by mkconfig */
-/* $Rev: 1558 $ $Date: 2005-07-04 20:36:13 +0200 (Mon, 04 Jul 2005) $ */
+/* f-ftpbnc--release--1.5 2005-10-30 19:14 */
 
 struct CONFIG {
 
@@ -15,6 +15,8 @@ struct CONFIG {
      int	destport;
      char	destbindip[256];
      int	destresolvetime;
+
+     int	ident;
 
      int	hammercount;
      int	hammertime;

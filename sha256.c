@@ -18,7 +18,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/* $Rev: 1558 $ $Date: 2005-07-04 20:36:13 +0200 (Mon, 04 Jul 2005) $ */
+/* f-ftpbnc--release--1.5 2005-10-30 19:14 */
 
 #include <string.h>
 

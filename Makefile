@@ -1,5 +1,5 @@
-# f-ftpbnc v1.1 Makefile
-# $Rev: 1558 $ $Date: 2005-07-04 20:36:13 +0200 (Mon, 04 Jul 2005) $
+# f-ftpbnc v1.5 Makefile
+# f-ftpbnc--release--1.5 2005-10-30 19:14
 
 DFLAGS=-W -Wall -g
 CFLAGS=$(DFLAGS)
@@ -24,7 +24,7 @@ f-ftpbnc.o: f-ftpbnc.c xtea-cipher.h inc-config.h
 
 f-ftpbnc: f-ftpbnc.o sha256.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ f-ftpbnc.o sha256.o $(LIBS)
-#strip -s $@
+	strip -s $@
 
 mkconfig.o: mkconfig.c xtea-cipher.h
 	$(CC) $(CFLAGS) -c -o $@ $<

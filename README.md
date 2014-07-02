@@ -1,23 +1,24 @@
-README for f-ftpbnc-v1.1
+README for f-ftpbnc-v1.5
 
 This is a fully functional ftp port "bouncer" for glftpd and compatible
 ftp-daemons. It is written from scratch and uses a special state-machine driven
 structure. The current version has following key features:
 
- o running in a single process. No forking (except for daemonizing), so no
-   endless process tree.
+ o Running in a single process. No forking (except for daemonizing), so no
+   endless process tree and all sockets are treated in non-blocking mode.
 
- o very fast and very small: activates many TCP accelerations and requires
-   less than 1024 bytes ram per forwarded connection.
+ o Very fast and very small: activates many TCP accelerations and requires
+   less than 8096 bytes ram per forwarded connection.
 
- o supports ident requesting and passing on to glftpd as IDNT.
+ o Supports ident requesting and passing on to glftpd as IDNT.
+   This can also be disabled and so makes the bnc a pure port forwarder.
 
  o AUTH SSL compatible. (does not touch passed data in any way)
 
  o No logging of connections, ips, traffic to log files. Only in debug mode
    will it show ips.
 
- o hammer protection based on multiple connects from the same ip.
+ o Hammer protection based on multiple connects from the same ip.
 
  o Encrypts config data within the program image: two methods available.
    Either the decryption key is stored in the binary, or it has to be supplied
@@ -25,8 +26,8 @@ structure. The current version has following key features:
 
  o Optionally changes the proc line shown in ps to indicate the current number
    of bounced connections.
-   
- o compiles fine under Linux, FreeBSD, OpenBSD. Others may need a little
+
+ o Compiles fine under Linux, FreeBSD, OpenBSD. Others may need a little
    porting.
 
 --- Installation ---
@@ -40,6 +41,12 @@ an f-ftpbnc binary at the end. Then start up the bnc with "./f-ftpbnc".
 !!! Remember to rm the inc-config.h once you are sure everything works fine.
     It contains you configuration (though not in plain-text). Best is to cp the
     f-ftpbnc binary into a different dir and rm the whole source.
+
+--- Forum ----
+
+If you require additional help please visit the new support forum at
+
+http://www.high-society.at/forum/
 
 --- Features ---
 
@@ -85,4 +92,15 @@ b) Do not include the encryption key in the binary.
 Have Fun
 F
 
-$Date: 2005-07-04 20:36:13 +0200 (Mon, 04 Jul 2005) $ $Rev: 1558 $
+f-ftpbnc--release--1.5 2005-10-30 19:14
+
+Changes:
+v1.5
+- added support for disabling ident lookup
+- now uses non-blocking write
+- and fixed ident timeouts for filtered ident ports
+
+v1.1
+- freebsd problems
+- making valgrind happy
+- added proctitle support
