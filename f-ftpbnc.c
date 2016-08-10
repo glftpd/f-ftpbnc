@@ -71,7 +71,7 @@ int config_load()
     memset(inpass, 0, strlen(inpass)); /* scrub password */
          
     xtea_cbc_decipher(configdataencrypt, sizeof(configdataencrypt),
-		      (unsigned long*)teakey, tea_iv);
+		      (const uint32_t *)teakey, tea_iv);
 
     config = (struct CONFIG*)configdataencrypt;
 
