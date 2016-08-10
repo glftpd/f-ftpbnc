@@ -366,23 +366,23 @@ struct MEMBUFF {
     char*		data;
 };
 
-inline unsigned long membuff_available(struct MEMBUFF *m)
+unsigned long membuff_available(struct MEMBUFF *m)
 {
     return m->len;
 }
 
-inline void *membuff_top(struct MEMBUFF *m)
+void *membuff_top(struct MEMBUFF *m)
 {
     return m->data + m->top;
 }
 
-inline void membuff_gobble(struct MEMBUFF *m, unsigned long len)
+void membuff_gobble(struct MEMBUFF *m, unsigned long len)
 {
     m->top += len;
     m->len -= len;
 }
 
-inline void membuff_free(struct MEMBUFF *m)
+void membuff_free(struct MEMBUFF *m)
 {
     if (m->data) {
 	free(m->data);
