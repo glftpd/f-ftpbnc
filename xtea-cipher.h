@@ -39,12 +39,12 @@ void xtea_decipher(const uint32_t *const v, uint32_t *const w,
     w[0]=y; w[1]=z;
 }
 
-inline void xtea_cbc_copy(unsigned char a[8], const unsigned char b[8]) {
+void xtea_cbc_copy(unsigned char a[8], const unsigned char b[8]) {
     ((uint32_t*)a)[0] = ((uint32_t*)b)[0];
     ((uint32_t*)a)[1] = ((uint32_t*)b)[1];
 }
 
-inline void xtea_cbc_xor(unsigned char a[8], const unsigned char b[8]) {
+void xtea_cbc_xor(unsigned char a[8], const unsigned char b[8]) {
     ((uint32_t*)a)[0] ^= ((uint32_t*)b)[0];
     ((uint32_t*)a)[1] ^= ((uint32_t*)b)[1];
 }

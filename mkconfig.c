@@ -504,7 +504,7 @@ int main()
 	printf("Scrambling configuration with random key.\n");
     }
     else {
-	printf("Encryptiong configuration with the password you supplied.\n");
+	printf("Encrypting configuration with the password you supplied.\n");
     }
     printf("\n");
 
